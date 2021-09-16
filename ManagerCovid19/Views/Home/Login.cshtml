@@ -3,9 +3,14 @@
 *@
 @{
     string ReturnURL = ViewData["ReturnURL"] as string;
+    var error = TempData["error"] as string;
 }
 
 <h1>Login page</h1>
+@if (!String.IsNullOrEmpty(error))
+            {
+                <span class="alert-danger">@error</span>
+            }
 <form action="/login?ReturnURL=@System.Net.WebUtility.UrlEncode(ReturnURL)" method="post">
     <input type="text" name="RN" placeholder="Registration Number" />
     <input type="password" name="password" placeholder="Password" />

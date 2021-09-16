@@ -2,6 +2,7 @@
 using ManagerCovid19.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -45,6 +46,7 @@ namespace ManagerCovid19.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Validate(string RN, string password, string ReturnURL)
         {
+            ViewData["ReturnURL"] = ReturnURL;
             var user = _context.Member.Find(RN);
             if (user != null)
             {
@@ -59,7 +61,16 @@ namespace ManagerCovid19.Controllers
                     return Redirect(ReturnURL);
                 }
             }
-            return View();
+            TempData["error"] = "Error: Invalid register number or password";
+            return View("Login");
+        }
+
+        [Authorize]
+        [HttpGet("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            return Redirect("/");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
