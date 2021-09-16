@@ -55,6 +55,7 @@ namespace ManagerCovid19.Controllers
                     var claims = new List<Claim>();
                     claims.Add(new Claim("RN", RN));
                     claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Name));
+                    claims.Add(new Claim(ClaimTypes.Role, user.Admin? "Admin":""));
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
                     await HttpContext.SignInAsync(claimsPrincipal);
@@ -71,6 +72,12 @@ namespace ManagerCovid19.Controllers
         {
             await HttpContext.SignOutAsync();
             return Redirect("/");
+        }
+
+        [Route("denied")]
+        public IActionResult Denied()
+        {
+            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -33,6 +33,7 @@ namespace ManagerCovid19
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
             {
                 options.LoginPath = "/login";
+                options.AccessDeniedPath = "/denied";
             });
         }
 

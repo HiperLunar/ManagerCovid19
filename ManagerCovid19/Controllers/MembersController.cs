@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ManagerCovid19.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class MembersController : Controller
     {
         private readonly ManagerCovid19Context _context;
