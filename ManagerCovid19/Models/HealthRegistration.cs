@@ -15,6 +15,7 @@ namespace ManagerCovid19.Models
         public string MemberRegistrationNumber { get; set; }
         public DateTime RegisterDateTime { get; set; }
         public bool HowRUFeeling { get; set; }
+        public string Symptoms { get; set; }
         public Member Member { get; set; }
     }
 }

@@ -4,14 +4,16 @@ using ManagerCovid19.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ManagerCovid19.Migrations
 {
     [DbContext(typeof(ManagerCovid19Context))]
-    partial class ManagerCovid19ContextModelSnapshot : ModelSnapshot
+    [Migration("20210916124706_Add_Symptoms")]
+    partial class Add_Symptoms
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -15,5 +15,7 @@ namespace ManagerCovid19.Data
         }
 
         public DbSet<ManagerCovid19.Models.Member> Member { get; set; }
+
+        public DbSet<ManagerCovid19.Models.HealthRegistration> HealthRegistration { get; set; }
     }
 }

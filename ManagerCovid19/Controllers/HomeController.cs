@@ -53,8 +53,8 @@ namespace ManagerCovid19.Controllers
                 if (user.Password == password)
                 {
                     var claims = new List<Claim>();
-                    claims.Add(new Claim("RN", RN));
-                    claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Name));
+                    claims.Add(new Claim(ClaimTypes.NameIdentifier, RN));
+                    claims.Add(new Claim(ClaimTypes.Name, user.Name));
                     claims.Add(new Claim(ClaimTypes.Role, user.Admin? "Admin":""));
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
