@@ -8,6 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using ManagerCovid19.Data;
 using ManagerCovid19.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using System.Data;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using Excel = Microsoft.Office.Interop.Excel;
+using System.Data.OleDb;
 
 namespace ManagerCovid19.Controllers
 {
@@ -36,6 +42,7 @@ namespace ManagerCovid19.Controllers
             }
 
             var member = await _context.Member
+                .Include(m => m.HealthRegistrations)
                 .FirstOrDefaultAsync(m => m.MemberRegistrationNumber == id);
             if (member == null)
             {
@@ -145,6 +152,37 @@ namespace ManagerCovid19.Controllers
             _context.Member.Remove(member);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Import()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Import(IFormFile file)
+        {
+            var path = Path.GetTempFileName();
+            using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write))
+            {
+                file.CopyTo(fileStream);
+            }
+            string conn = String.Empty;
+            DataTable xtable = new DataTable();
+            if (file.FileName.EndsWith(".xlsx")) conn = @"provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path + ";Extended Properties='Excel 8.0;HRD=Yes;IMEX=1';";
+            else conn = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path + ";Extended Properties='Excel 12.0;HDR=NO';";
+            using (OleDbConnection con = new OleDbConnection(conn))
+            {
+                //try
+                //{
+                    con.Open();
+                    OleDbDataAdapter oleAdpt = new OleDbDataAdapter("select * from [Sheet1$]", con);
+                    oleAdpt.Fill(xtable);
+                    con.Close();
+                //} catch { }
+            }
+            ViewData["debug"] = xtable.Rows[0][0];
+            return View("Import");
         }
 
         private bool MemberExists(string id)

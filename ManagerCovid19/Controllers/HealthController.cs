@@ -21,14 +21,14 @@ namespace ManagerCovid19.Controllers
             _context = context;
         }
 
-        // GET: HealthRegistrations
+        // GET: Health
         public async Task<IActionResult> Index()
         {
             var managerCovid19Context = _context.HealthRegistration.Include(h => h.Member);
             return View(await managerCovid19Context.ToListAsync());
         }
 
-        // GET: HealthRegistrations/Details/5
+        // GET: Health/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -47,6 +47,7 @@ namespace ManagerCovid19.Controllers
             return View(healthRegistration);
         }
 
+        // GET: Health/Create
         [Authorize]
         public IActionResult Create()
         {
@@ -54,27 +55,28 @@ namespace ManagerCovid19.Controllers
             return View();
         }
 
-        [Authorize]
+        // POST: Health/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(bool HowRUFeeling, string? Symptoms)
+        [Authorize]
+        public async Task<IActionResult> Create([Bind("HealthRegistrationID,HowRUFeeling,FaltaDeAr,Cansaco,Febre,Calafrios,Tosse,DorDeGarganta,DorDeCabeca,DorNoPeito,PerdaDeOlfato,PerdaPaladar,Diarreia,Coriza,Espirros")] HealthRegistration healthRegistration)
         {
-            HealthRegistration register = new HealthRegistration();
-            register.MemberRegistrationNumber = User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier)
+            healthRegistration.RegisterDateTime = DateTime.Now;
+            healthRegistration.MemberRegistrationNumber = User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier)
                 .Select(c => c.Value).SingleOrDefault();
-            register.RegisterDateTime = DateTime.Now;
-            register.HowRUFeeling = HowRUFeeling;
-            register.Symptoms = Symptoms;
             if (ModelState.IsValid)
             {
-                _context.Add(register);
+                _context.Add(healthRegistration);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View();
+            ViewData["MemberRegistrationNumber"] = new SelectList(_context.Member, "MemberRegistrationNumber", "MemberRegistrationNumber", healthRegistration.MemberRegistrationNumber);
+            return View(healthRegistration);
         }
 
-        // GET: HealthRegistrations/Edit/5
+        // GET: Health/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -88,15 +90,16 @@ namespace ManagerCovid19.Controllers
                 return NotFound();
             }
             ViewData["MemberRegistrationNumber"] = new SelectList(_context.Member, "MemberRegistrationNumber", "MemberRegistrationNumber", healthRegistration.MemberRegistrationNumber);
+            ViewData["hidden"] = healthRegistration.HowRUFeeling ? "" : "style=\"display: none;\"";
             return View(healthRegistration);
         }
 
-        // POST: HealthRegistrations/Edit/5
+        // POST: Health/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("HealthRegistrationID,MemberRegistrationNumber,RegisterDateTime,HowRUFeeling,Symptoms")] HealthRegistration healthRegistration)
+        public async Task<IActionResult> Edit(int id, [Bind("HealthRegistrationID,MemberRegistrationNumber,RegisterDateTime,HowRUFeeling,FaltaDeAr,Cansaco,Febre,Calafrios,Tosse,DorDeGarganta,DorDeCabeca,DorNoPeito,PerdaDeOlfato,PerdaPaladar,Diarreia,Coriza,Espirros")] HealthRegistration healthRegistration)
         {
             if (id != healthRegistration.HealthRegistrationID)
             {
@@ -127,7 +130,7 @@ namespace ManagerCovid19.Controllers
             return View(healthRegistration);
         }
 
-        // GET: HealthRegistrations/Delete/5
+        // GET: Health/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -146,7 +149,7 @@ namespace ManagerCovid19.Controllers
             return View(healthRegistration);
         }
 
-        // POST: HealthRegistrations/Delete/5
+        // POST: Health/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

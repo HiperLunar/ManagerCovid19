@@ -46,6 +46,42 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.State)
         </dd>
+        <dd class="col-sm-2">
+            @Html.DisplayFor(model => model.HealthRegistrations)
+        </dd>
+        <dt class="col-sm-10">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().RegisterDateTime)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().HowRUFeeling)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.HealthRegistrations)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.RegisterDateTime)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.HowRUFeeling)
+                            </td>
+                            <td>
+                                <a asp-controller="Health" asp-action="Edit" asp-route-id="@item.HealthRegistrationID">Edit</a> |
+                                <a asp-controller="Health" asp-action="Details" asp-route-id="@item.HealthRegistrationID">Details</a> |
+                                <a asp-controller="Health" asp-action="Delete" asp-route-id="@item.HealthRegistrationID">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </dt>
     </dl>
 </div>
 <div>

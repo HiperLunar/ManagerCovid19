@@ -2,7 +2,10 @@
 
 @{
     ViewData["Title"] = "Edit";
+    var hidden = ViewData["hidden"] as string;
 }
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <h1>Edit</h1>
 
@@ -13,26 +16,52 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="HealthRegistrationID" />
-            <div class="form-group">
-                <label asp-for="MemberRegistrationNumber" class="control-label"></label>
-                <select asp-for="MemberRegistrationNumber" class="form-control" asp-items="ViewBag.MemberRegistrationNumber"></select>
-                <span asp-validation-for="MemberRegistrationNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="RegisterDateTime" class="control-label"></label>
-                <input asp-for="RegisterDateTime" class="form-control" />
-                <span asp-validation-for="RegisterDateTime" class="text-danger"></span>
-            </div>
             <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="HowRUFeeling" /> @Html.DisplayNameFor(model => model.HowRUFeeling)
-                </label>
+                <h2>Como você está se sentindo hoje?</h2>
+                @Html.RadioButtonFor(model => model.HowRUFeeling, "true") Bem
+                @Html.RadioButtonFor(model => model.HowRUFeeling, "false") Não muito bem
             </div>
-            <div class="form-group">
-                <label asp-for="Symptoms" class="control-label"></label>
-                <input asp-for="Symptoms" class="form-control" />
-                <span asp-validation-for="Symptoms" class="text-danger"></span>
-            </div>
+            <dl id="symptoms" class="row" @hidden>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.FaltaDeAr)</dt>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.FaltaDeAr, "true") Sim</dd>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.FaltaDeAr, "false") Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.Cansaco)</dt>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.Cansaco, "true") Sim</dd>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.Cansaco, "false") Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.Febre)</dt>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.Febre, "true") Sim</dd>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.Febre, "false") Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.Calafrios)</dt>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.Calafrios, "true") Sim</dd>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.Calafrios, "false") Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.Tosse)</dt>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.Tosse, "true") Sim</dd>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.Tosse, "false") Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.DorDeGarganta)</dt>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.DorDeGarganta, "true") Sim</dd>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.DorDeGarganta, "false") Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.DorDeCabeca)</dt>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.DorDeCabeca, "true") Sim</dd>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.DorDeCabeca, "false") Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.DorNoPeito)</dt>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.DorNoPeito, "true") Sim</dd>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.DorNoPeito, "false") Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.PerdaDeOlfato)</dt>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.PerdaDeOlfato, "true") Sim</dd>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.PerdaDeOlfato, "false") Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.PerdaPaladar)</dt>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.PerdaPaladar, "true") Sim</dd>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.PerdaPaladar, "false") Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.Diarreia)</dt>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.Diarreia, "true") Sim</dd>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.Diarreia, "false") Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.Coriza)</dt>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.Coriza, "true") Sim</dd>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.Coriza, "false") Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.Espirros)</dt>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.Espirros, "true") Sim</dd>
+                <dd class="col-sm-3">@Html.RadioButtonFor(model => model.Espirros, "false") Não</dd>
+            </dl>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
@@ -47,3 +76,10 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+<script>
+    $('input:radio[name=HowRUFeeling]').change(function () {
+        if ($(this).attr('value') == 'false') $('#symptoms').show();
+        else $('#symptoms').hide();
+    });
+</script>

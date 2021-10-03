@@ -3,74 +3,70 @@
 @{
     ViewData["Title"] = "Create";
 }
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 <h1>Create</h1>
 
 <h4>HealthRegistration</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form action="">
+        <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
+            <div class="form-group form-check">
                 <h2>Como você está se sentindo hoje?</h2>
-                <input type="radio" name="HowRUFelling" value="true" />
-                <label>Bem</label>
-                <input type="radio" name="HowRUFelling" value="false" />
-                <label>Não muito bem</label>
+                <input type="radio" name="HowRUFeeling" value="true" />Bem
+                <input type="radio" name="HowRUFeeling" value="false" />Não muito bem
             </div>
-            <div id="symptoms-form" style="display: none">
-                <dl class="row">
-                    <dt class="col-sm-6">Falta de ar</dt>
-                    <dd class="col-sm-3"><input type="radio" name="FaltaDeAr" value="true" />Sim</dd>
-                    <dd class="col-sm-3"><input type="radio" name="FaltaDeAr" value="false" />Não</dd>
-                    <dt class="col-sm-6">Cansaço</dt>
-                    <dd class="col-sm-3"><input type="radio" name="Cansaco" value="true" />Sim</dd>
-                    <dd class="col-sm-3"><input type="radio" name="Cansaco" value="false" />Não</dd>
-                    <dt class="col-sm-6">Febre</dt>
-                    <dd class="col-sm-3"><input type="radio" name="Febre" value="true" />Sim</dd>
-                    <dd class="col-sm-3"><input type="radio" name="Febre" value="false" />Não</dd>
-                    <dt class="col-sm-6">Calafrios</dt>
-                    <dd class="col-sm-3"><input type="radio" name="Calafrios" value="true" />Sim</dd>
-                    <dd class="col-sm-3"><input type="radio" name="Calafrios" value="false" />Não</dd>
-                    <dt class="col-sm-6">Tosse</dt>
-                    <dd class="col-sm-3"><input type="radio" name="Tosse" value="true" />Sim</dd>
-                    <dd class="col-sm-3"><input type="radio" name="Tosse" value="false" />Não</dd>
-                    <dt class="col-sm-6">Dor de garganta</dt>
-                    <dd class="col-sm-3"><input type="radio" name="DorDeGarganta" value="true" />Sim</dd>
-                    <dd class="col-sm-3"><input type="radio" name="DorDeGarganta" value="false" />Não</dd>
-                    <dt class="col-sm-6">Dor de cabeça</dt>
-                    <dd class="col-sm-3"><input type="radio" name="DorDeCabeca" value="true" />Sim</dd>
-                    <dd class="col-sm-3"><input type="radio" name="DorDeCabeca" value="false" />Não</dd>
-                    <dt class="col-sm-6">Dor no peito</dt>
-                    <dd class="col-sm-3"><input type="radio" name="DorNoPeito" value="true" />Sim</dd>
-                    <dd class="col-sm-3"><input type="radio" name="DorNoPeito" value="false" />Não</dd>
-                    <dt class="col-sm-6">Dores musculares</dt>
-                    <dd class="col-sm-3"><input type="radio" name="DoresMusculares" value="true" />Sim</dd>
-                    <dd class="col-sm-3"><input type="radio" name="DoresMusculares" value="false" />Não</dd>
-                    <dt class="col-sm-6">Perda de olfato</dt>
-                    <dd class="col-sm-3"><input type="radio" name="PerdaDeOlfato" value="true" />Sim</dd>
-                    <dd class="col-sm-3"><input type="radio" name="PerdaDeOlfato" value="false" />Não</dd>
-                    <dt class="col-sm-6">Perda de paladar</dt>
-                    <dd class="col-sm-3"><input type="radio" name="PerdaDePaladar" value="true" />Sim</dd>
-                    <dd class="col-sm-3"><input type="radio" name="PerdaDePaladar" value="false" />Não</dd>
-                    <dt class="col-sm-6">Diarreia</dt>
-                    <dd class="col-sm-3"><input type="radio" name="Diarreia" value="true" />Sim</dd>
-                    <dd class="col-sm-3"><input type="radio" name="Diarreia" value="false" />Não</dd>
-                    <dt class="col-sm-6">Coriza</dt>
-                    <dd class="col-sm-3"><input type="radio" name="Coriza" value="true" />Sim</dd>
-                    <dd class="col-sm-3"><input type="radio" name="Coriza" value="false" />Não</dd>
-                    <dt class="col-sm-6">Espirros</dt>
-                    <dd class="col-sm-3"><input type="radio" name="Espirros" value="true" />Sim</dd>
-                    <dd class="col-sm-3"><input type="radio" name="Espirros" value="false" />Não</dd>
-                </dl>
-            </div>
+            <dl id="symptoms" class="row" style="display: none;">
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.FaltaDeAr)</dt>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="FaltaDeAr" value="true" />Sim</dd>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="FaltaDeAr" value="false" />Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.Cansaco)</dt>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="Cansaco" value="true" />Sim</dd>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="Cansaco" value="false" />Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.Febre)</dt>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="Febre" value="true" />Sim</dd>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="Febre" value="false" />Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.Calafrios)</dt>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="Calafrios" value="true" />Sim</dd>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="Calafrios" value="false" />Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.Tosse)</dt>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="Tosse" value="true" />Sim</dd>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="Tosse" value="false" />Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.DorDeGarganta)</dt>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="DorDeGarganta" value="true" />Sim</dd>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="DorDeGarganta" value="false" />Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.DorDeCabeca)</dt>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="DorDeCabeca" value="true" />Sim</dd>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="DorDeCabeca" value="false" />Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.DorNoPeito)</dt>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="DorNoPeito" value="true" />Sim</dd>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="DorNoPeito" value="false" />Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.PerdaDeOlfato)</dt>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="PerdaDeOlfato" value="true" />Sim</dd>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="PerdaDeOlfato" value="false" />Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.PerdaPaladar)</dt>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="PerdaPaladar" value="true" />Sim</dd>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="PerdaPaladar" value="false" />Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.Diarreia)</dt>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="Diarreia" value="true" />Sim</dd>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="Diarreia" value="false" />Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.Coriza)</dt>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="Coriza" value="true" />Sim</dd>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="Coriza" value="false" />Não</dd>
+                <dt class="col-sm-6">@Html.DisplayNameFor(model => model.Espirros)</dt>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="Espirros" value="true" />Sim</dd>
+                <dd class="col-sm-3"><input class="form-check-input" type="radio" name="Espirros" value="false" />Não</dd>
+            </dl>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
+
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
@@ -78,12 +74,10 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
-<script>
-    $('input:radio[name=HowRUFelling]').change(function () {
-        if ($('input:radio[name=HowRUFelling]:checked').val() == 'false') $('#symptoms-form').show();
-        else if ($('input:radio[name=HowRUFelling]:checked').val() == 'true') $('#symptoms-form').hide();
-    });
-    function submit() {
 
-    }
+<script>
+    $('input:radio[name=HowRUFeeling]').change(function () {
+        if ($(this).attr('value') == 'false') $('#symptoms').show();
+        else $('#symptoms').hide();
+    });
 </script>

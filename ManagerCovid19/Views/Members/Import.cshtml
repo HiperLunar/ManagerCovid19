@@ -1,0 +1,24 @@
+﻿
+@{
+    ViewData["Title"] = "Import";
+    var debug = ViewData["debug"] as string;
+}
+
+<h1>Import</h1>
+
+<form enctype="multipart/form-data" method="post" asp-controller="Member" asp-action="Import">
+    <dl>
+        <dt>
+            <label>File</label>
+        </dt>
+        <dd>
+            <input type="file" name="file">
+        </dd>
+    </dl>
+    <input asp-page-handler="Upload" class="btn" type="submit" value="Upload" />
+    @if(!String.IsNullOrEmpty(debug))
+            {
+
+        <span>@debug</span>
+            }
+</form>
