@@ -70,10 +70,15 @@ namespace ManagerCovid19.Controllers
             {
                 _context.Add(healthRegistration);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Success));
             }
             ViewData["MemberRegistrationNumber"] = new SelectList(_context.Member, "MemberRegistrationNumber", "MemberRegistrationNumber", healthRegistration.MemberRegistrationNumber);
             return View(healthRegistration);
+        }
+
+        public IActionResult Success()
+        {
+            return View();
         }
 
         // GET: Health/Edit/5
