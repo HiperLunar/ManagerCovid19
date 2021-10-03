@@ -32,8 +32,13 @@
                         </li>
                         @if (User.Identity.IsAuthenticated)
                         {
+                            <li class="nav-item">Usuário: @User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name).Value</li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
+                            </li>
+                        } else {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Login">Login</a>
                             </li>
                         }
                     </ul>
