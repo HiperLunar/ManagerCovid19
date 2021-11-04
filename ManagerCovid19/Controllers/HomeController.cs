@@ -46,6 +46,7 @@ namespace ManagerCovid19.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Validate(string RN, string password, string ReturnURL)
         {
+            if (String.IsNullOrEmpty(ReturnURL)) ReturnURL = "/";
             ViewData["ReturnURL"] = ReturnURL;
             var user = _context.Member.Find(RN);
             if (user != null)
@@ -55,7 +56,7 @@ namespace ManagerCovid19.Controllers
                     var claims = new List<Claim>();
                     claims.Add(new Claim(ClaimTypes.NameIdentifier, RN));
                     claims.Add(new Claim(ClaimTypes.Name, user.Name));
-                    claims.Add(new Claim(ClaimTypes.Role, user.Admin? "Admin":""));
+                    claims.Add(new Claim(ClaimTypes.Role, user.Sector == Member.Sectors.Administrador? "Admin":""));
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
                     await HttpContext.SignInAsync(claimsPrincipal);
