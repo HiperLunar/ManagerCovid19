@@ -4,12 +4,28 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+<script>
+    const registrations = [
+        @foreach (var item in Model)
+        {
+            @Html.Raw(Json.Serialize(item)+",\n");
+        }
+    ];
+    const mark = (date) => {
+        for (let i = 0; i < registrations.length; i++)
+            if (date.getFullYear() == (new Date(registrations[i].RegisterDateTime)).getFullYear()
+                && date.getMonth() == (new Date(registrations[i].RegisterDateTime)).getMonth()
+                && date.getDate() == (new Date(registrations[i].RegisterDateTime)).getDate())
+                return true;
+        return false;
+    };
+</script>
+
+<partial name="../Shared/Calendar.cshtml" />
+
+<table id="registerList" class="table">
     <thead>
         <tr>
             <th>
@@ -57,69 +73,45 @@
             <th>
                 @Html.DisplayNameFor(model => model.Espirros)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Member)
-            </th>
-            <th></th>
         </tr>
     </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.RegisterDateTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.HowRUFeeling)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FaltaDeAr)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Cansaco)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Febre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Calafrios)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Tosse)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DorDeGarganta)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DorDeCabeca)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DorNoPeito)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PerdaDeOlfato)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PerdaPaladar)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Diarreia)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Coriza)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Espirros)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Member.MemberRegistrationNumber)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.HealthRegistrationID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.HealthRegistrationID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.HealthRegistrationID">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
+    <tbody></tbody>
 </table>
+
+<script>
+    const renderTable = () => {
+        const table = $('#registerList tbody');
+        table.empty();
+        for (let i = 0; i < registrations.length; i++) {
+            var d = new Date(registrations[i].registerDateTime);
+            if (selectedDate)
+                if (d.getDate() == selectedDate.getDate()
+                    && d.getMonth() == selectedDate.getMonth()
+                    && d.getFullYear() == selectedDate.getFullYear())
+                {
+                    var row = $('<tr>');
+                    console.log(row);
+                    row.append($('<td>').html(d.toLocaleString()));
+                    row.append($('<td>').html(registrations[i].howRUFeeling? 'Sim' : 'Não'));
+                    row.append($('<td>').html(registrations[i].faltaDeAr ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(registrations[i].cansaco ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(registrations[i].febre ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(registrations[i].calafrios ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(registrations[i].tosse ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(registrations[i].dorDeGarganta ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(registrations[i].dorDeCabeca ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(registrations[i].dorNoPeito ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(registrations[i].perdaDeOlfato ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(registrations[i].perdaPaladar ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(registrations[i].diarreia ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(registrations[i].coriza ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(registrations[i].espirros ? 'Sim' : 'Não'));
+                    table.append(row);
+                }
+        }
+    }
+
+    $('.days').click('div', element => {
+        renderTable();
+    });
+</script>

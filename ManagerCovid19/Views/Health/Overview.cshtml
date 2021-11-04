@@ -1,0 +1,102 @@
+﻿
+@{
+    ViewData["Title"] = "Overview";
+}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+
+</script>
+
+<h1>Overview</h1>
+
+Visão geral de
+<input type="date" name="from" /> até
+<input type="date" name="to" />
+<button id="refresh">Refresh</button>
+<div id="charts"></div>
+<div id="registerByDateChart_div"></div>
+<div id="notWellByDateChart_div"></div>
+<div id="registerBySectorByDateChart_div"></div>
+<div id="registerBySectorByDateNotWellChart_div"></div>
+<span>Quantidade de registros "Não estou me sentindo bem" nos últimos 5 dias: <div id="lastDays"></div></span>
+<span>Quantidade de registros "Não estou me sentindo bem" nos últimos 5 dias no setor "Administrador": <div id="lastDays0"></div></span>
+<span>Quantidade de registros "Não estou me sentindo bem" nos últimos 5 dias no setor "Aluno": <div id="lastDays1"></div></span>
+<span>Quantidade de registros "Não estou me sentindo bem" nos últimos 5 dias no setor "Professor": <div id="lastDays2"></div></span>
+<span>Quantidade de registros "Não estou me sentindo bem" nos últimos 5 dias no setor "Funcionário": <div id="lastDays3"></div></span>
+
+<script>
+
+    $('document').ready(() => {
+        var from = new Date();
+        from.setMonth(from.getMonth() - 1);
+        var to = new Date();
+        console.log(`FROM: ${from}; TO: ${to};`);
+        $('input[name=from]')[0].value = `${from.getFullYear()}-${("0" + (from.getMonth() + 1)).slice(-2)}-${("0" + from.getDate()).slice(-2)}`;
+        $('input[name=to]')[0].value = `${to.getFullYear()}-${("0" + (to.getMonth() + 1)).slice(-2)}-${("0" + to.getDate()).slice(-2)}`;
+    });
+
+    google.charts.load('current', { packages: ['corechart', 'bar'] });
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        console.log('refresh');
+        $.post(location.origin + '/Health/Filter', { 'fromDate': $('input[name=from]')[0].value || new Date(new Date().setDate(1)).toLocaleDateString(), 'toDate': $('input[name=to]')[0].value || new Date().toLocaleDateString() }, (dataRaw) => {
+            console.log(dataRaw);
+            var registerByDate = new google.visualization.DataTable();
+            registerByDate.addColumn('date', 'Dias');
+            registerByDate.addColumn('number', 'Quantidade de registros');
+            for (let i = 0; i < dataRaw.registerByDate.length; i++) registerByDate.addRows([[new Date(dataRaw.registerByDate[i].date), dataRaw.registerByDate[i].count]]);
+
+            var notWellByDate = new google.visualization.DataTable();
+            notWellByDate.addColumn('date', 'Dias');
+            notWellByDate.addColumn('number', "Quantidade de registros 'Não estou me sentindo bem'");
+            for (let i = 0; i < dataRaw.notWellByDate.length; i++) notWellByDate.addRows([[new Date(dataRaw.notWellByDate[i].date), dataRaw.notWellByDate[i].count]]);
+
+            var registerBySectorByDate = new google.visualization.DataTable();
+            var registerBySectorByDateNotWell = new google.visualization.DataTable();
+            registerBySectorByDate.addColumn('date', 'Dias');
+            registerBySectorByDate.addColumn('number', 'Administrador');
+            registerBySectorByDate.addColumn('number', 'Aluno');
+            registerBySectorByDate.addColumn('number', 'Funcionário');
+            registerBySectorByDate.addColumn('number', 'Professor');
+            registerBySectorByDateNotWell.addColumn('date', 'Dias');
+            registerBySectorByDateNotWell.addColumn('number', 'Administrador');
+            registerBySectorByDateNotWell.addColumn('number', 'Aluno');
+            registerBySectorByDateNotWell.addColumn('number', 'Funcionário');
+            registerBySectorByDateNotWell.addColumn('number', 'Professor');
+            dataRaw.registerBySectorByDate.forEach((element) => registerBySectorByDate.addRows([[new Date(element.key), element.administrador, element.aluno, element.professor, element.funcionario]]));
+            dataRaw.registerBySectorByDate.forEach((element) => registerBySectorByDateNotWell.addRows([[new Date(element.key), element.administradorNotWell, element.alunoNotWell, element.professorNotWell, element.funcionarioNotWell]]));
+
+            console.log(dataRaw.registerBySectorByDate)
+
+            var registerByDateChart = new google.visualization.ColumnChart(document.getElementById('registerByDateChart_div'));
+            registerByDateChart.draw(registerByDate, {
+                title: 'Quantidade diária de relatórios',
+                isStacked: true
+            });
+            var notWellByDateChart = new google.visualization.ColumnChart(document.getElementById('notWellByDateChart_div'));
+            notWellByDateChart.draw(notWellByDate, {
+                title: 'Quantidade diária de registros de saúde "Não muito bem"',
+                isStacked: true
+            });
+            var registerBySectorByDateChart = new google.visualization.ColumnChart(document.getElementById('registerBySectorByDateChart_div'));
+            registerBySectorByDateChart.draw(registerBySectorByDate, {
+                title: 'Quantidade diária de registros de saúde por setor'
+            });
+            var registerBySectorByDateNotWellChart = new google.visualization.ColumnChart(document.getElementById('registerBySectorByDateNotWellChart_div'));
+            registerBySectorByDateNotWellChart.draw(registerBySectorByDateNotWell, {
+                title: 'Quantidade diária de registros de saúde "Não muito bem" por setor'
+            });
+            document.getElementById('lastDays').innerText = dataRaw.lastDays[0].count;
+            document.getElementById('lastDays0').innerText = dataRaw.lastDays[0].administrador;
+            document.getElementById('lastDays1').innerText = dataRaw.lastDays[0].aluno;
+            document.getElementById('lastDays2').innerText = dataRaw.lastDays[0].professor;
+            document.getElementById('lastDays3').innerText = dataRaw.lastDays[0].funcionario;
+        });
+    }
+
+    $('#refresh').click(() => { drawChart(); })
+</script>

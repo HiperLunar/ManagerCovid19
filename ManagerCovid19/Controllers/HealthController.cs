@@ -21,11 +21,12 @@ namespace ManagerCovid19.Controllers
             _context = context;
         }
 
-        // GET: Health
+        [Authorize]
         public async Task<IActionResult> Index()
         {
-            var managerCovid19Context = _context.HealthRegistration.Include(h => h.Member);
-            return View(await managerCovid19Context.ToListAsync());
+            var managerCovid19Context = _context.HealthRegistration;
+            var RN = User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+            return View(await managerCovid19Context.Where(model => model.MemberRegistrationNumber == RN).ToArrayAsync());
         }
 
         // GET: Health/Details/5
@@ -45,6 +46,70 @@ namespace ManagerCovid19.Controllers
             }
 
             return View(healthRegistration);
+        }
+
+        public IActionResult Overview(DateTime fromDate, DateTime toDate)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Filter(DateTime fromDate, DateTime toDate)
+        {
+            var response = new
+            {
+                registerByDate = await _context.HealthRegistration
+                .Where(m => DateTime.Compare(m.RegisterDateTime, fromDate) >= 0 && DateTime.Compare(m.RegisterDateTime, toDate) <= 0)
+                .GroupBy(m => m.RegisterDateTime.Date)
+                .Select(m => new
+                {
+                    Date = m.Key,
+                    Count = m.Count()
+                })
+                .ToListAsync(),
+
+                notWellByDate = await _context.HealthRegistration
+                .Where(m => DateTime.Compare(m.RegisterDateTime, fromDate) >= 0 && DateTime.Compare(m.RegisterDateTime, toDate) <= 0 && !m.HowRUFeeling)
+                .GroupBy(m => m.RegisterDateTime.Date)
+                .Select(m => new
+                {
+                    Date = m.Key,
+                    Count = m.Count()
+                })
+                .ToListAsync(),
+
+                registerBySectorByDate = _context.HealthRegistration
+                .Include(m => m.Member)
+                .Where(m => DateTime.Compare(m.RegisterDateTime, fromDate) >= 0 && DateTime.Compare(m.RegisterDateTime, toDate) <= 0)
+                .AsEnumerable()
+                .GroupBy(m => m.RegisterDateTime.Date)
+                .Select(m => new
+                {
+                    Key = m.Key,
+                    Administrador = m.Sum(n => n.Member.Sector == Member.Sectors.Administrador ? 1 : 0),
+                    AdministradorNotWell = m.Sum(n => n.Member.Sector == Member.Sectors.Administrador && !n.HowRUFeeling ? 1 : 0),
+                    Aluno = m.Sum(n => n.Member.Sector == Member.Sectors.Aluno ? 1 : 0),
+                    AlunoNotWell = m.Sum(n => n.Member.Sector == Member.Sectors.Aluno && !n.HowRUFeeling ? 1 : 0),
+                    Funcionario = m.Sum(n => n.Member.Sector == Member.Sectors.Funcionario ? 1 : 0),
+                    FuncionarioNotWell = m.Sum(n => n.Member.Sector == Member.Sectors.Funcionario && !n.HowRUFeeling ? 1 : 0),
+                    Professor = m.Sum(n => n.Member.Sector == Member.Sectors.Professor ? 1 : 0),
+                    ProfessorNotWell = m.Sum(n => n.Member.Sector == Member.Sectors.Professor && !n.HowRUFeeling ? 1 : 0)
+                }),
+                lastDays = _context.HealthRegistration
+                .Include(m => m.Member)
+                .Where(m => DateTime.Compare(m.RegisterDateTime, DateTime.Today.AddDays(-5)) > 0 && DateTime.Compare(m.RegisterDateTime, DateTime.Today) < 0 && !m.HowRUFeeling)
+                .AsEnumerable()
+                .GroupBy(m => m.RegisterDateTime.Date)
+                .Select(m => new
+                {
+                    Count = m.Count(),
+                    Administrador = m.Sum(n => n.Member.Sector == Member.Sectors.Administrador ? 1 : 0),
+                    Aluno = m.Sum(n => n.Member.Sector == Member.Sectors.Aluno ? 1 : 0),
+                    Funcionario = m.Sum(n => n.Member.Sector == Member.Sectors.Funcionario ? 1 : 0),
+                    Professor = m.Sum(n => n.Member.Sector == Member.Sectors.Professor ? 1 : 0),
+                }).ToList()
+            };
+            return Json(response);
         }
 
         // GET: Health/Create
