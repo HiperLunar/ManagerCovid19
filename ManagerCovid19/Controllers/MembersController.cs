@@ -28,9 +28,53 @@ namespace ManagerCovid19.Controllers
         }
 
         // GET: Members
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page)
         {
-            return View(await _context.Member.ToListAsync());
+            int pageSize = 10;
+            ViewBag.Page = page;
+
+            /*ViewBag.sort = String.IsNullOrEmpty(sort) ? "" : sort;
+            ViewBag.order = String.IsNullOrEmpty(order) ? "" : order;
+            var members = from m in _context.Member
+                          select m;
+
+            if (!String.IsNullOrEmpty(search)) members = members.Where(m => m.Name.Contains(search)
+                                                                         || m.MemberRegistrationNumber.Contains(search)
+                                                                         || m.City.Contains(search)
+                                                                         || m.State.Contains(search));
+
+            switch (sort)
+            {
+                case "MemberRegistrationNumber":
+                    if (order == "D") members = members.OrderByDescending(s => s.MemberRegistrationNumber);
+                    else members = members.OrderBy(s => s.MemberRegistrationNumber);
+                        break;
+                case "Name":
+                    if (order == "D") members = members.OrderByDescending(s => s.Name);
+                    else members = members.OrderBy(s => s.Name);
+                    break;
+                case "Sector":
+                    if (order == "D") members = members.OrderByDescending(s => s.Sector);
+                    else members = members.OrderBy(s => s.Sector);
+                    break;
+                case "BirthDate":
+                    if (order == "D") members = members.OrderByDescending(s => s.BirthDate);
+                    else members = members.OrderBy(s => s.BirthDate);
+                    break;
+                case "City":
+                    if (order == "D") members = members.OrderByDescending(s => s.City);
+                    else members = members.OrderBy(s => s.City);
+                    break;
+                case "State":
+                    if (order == "D") members = members.OrderByDescending(s => s.State);
+                    else members = members.OrderBy(s => s.State);
+                    break;
+            }
+
+            int pageSize = 10;
+            page ??= 1;*/
+
+            return View(await _context.Member.Skip((page??1-1)*pageSize).Take(pageSize).ToListAsync());
         }
 
         // GET: Members/Details/5

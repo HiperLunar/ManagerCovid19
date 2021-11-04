@@ -29,7 +29,7 @@ namespace ManagerCovid19
             services.AddControllersWithViews();
 
             services.AddDbContext<ManagerCovid19Context>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("ManagerCovid19Context")));
+                    options.UseSqlServer(Configuration.GetConnectionString("Azure")));
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
             {
                 options.LoginPath = "/login";

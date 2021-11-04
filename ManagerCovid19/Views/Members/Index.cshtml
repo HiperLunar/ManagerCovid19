@@ -9,29 +9,27 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                @Html.DisplayNameFor(m => m.MemberRegistrationNumber)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.MemberRegistrationNumber)
+                @Html.DisplayNameFor(m => m.Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Sector)
+                @Html.DisplayNameFor(m => m.Sector)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Password)
+                @Html.DisplayNameFor(m => m.BirthDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.BirthDate)
+                @Html.DisplayNameFor(m => m.City)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.City)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.State)
+                @Html.DisplayNameFor(m => m.State)
             </th>
             <th></th>
         </tr>
@@ -40,16 +38,13 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.MemberRegistrationNumber)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Sector)
+                @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Password)
+                @Html.DisplayFor(modelItem => item.Sector)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.BirthDate)
@@ -69,5 +64,7 @@
 }
     </tbody>
 </table>
-
+@if ((ViewBag.Page ?? 1) > 1)
+{<a href="?page=@(ViewBag.Page - 1)" class="btn btn-primary">Prev</a>}
+<a href="?page=@((ViewBag.Page??1)+1)" class="btn btn-primary">Next</a>
 <a class="nav-link text-dark" asp-area="" asp-controller="Members" asp-action="Import">Importar de um arquivo</a>

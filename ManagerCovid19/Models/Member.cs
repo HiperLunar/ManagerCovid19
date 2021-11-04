@@ -9,13 +9,21 @@ namespace ManagerCovid19.Models
 {
     public class Member
     {
+        public enum Sectors
+        {
+            Administrador,
+            Aluno,
+            Professor,
+            Funcionario            
+        }
+
         [Key]
         [Display(Name = "Número de matrícula")]
         public string MemberRegistrationNumber { get; set; }
         [Display(Name = "Nome")]
         public string Name { get; set; }
         [Display(Name = "Setor")]
-        public string Sector { get; set; }
+        public Sectors Sector { get; set; }
         [Display(Name = "Senha")]
         public string Password { get; set; }
         [Column(TypeName = "Date")]
@@ -27,8 +35,6 @@ namespace ManagerCovid19.Models
         public string City { get; set; }
         [Display(Name = "Estado")]
         public string State { get; set; }
-        [Display(Name = "Administrador")]
-        public bool Admin { get; set; }
         [Display(Name = "Registros de saúde")]
         public virtual ICollection<HealthRegistration> HealthRegistrations { get; set; }
     }
