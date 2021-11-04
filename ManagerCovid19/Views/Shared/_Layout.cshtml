@@ -28,6 +28,9 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Members" asp-action="Index">Membros</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Health" asp-action="Index">Relatório</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Health" asp-action="Create">Registrar sintomas</a>
                         </li>
                         @if (User.Identity.IsAuthenticated)
@@ -36,7 +39,9 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
                             </li>
-                        } else {
+                        }
+                        else
+                        {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Login">Login</a>
                             </li>
