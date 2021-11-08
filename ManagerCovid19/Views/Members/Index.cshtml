@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ManagerCovid19.Models.Member>
+﻿@model PaginatedList<ManagerCovid19.Models.Member>
 
 @{
     ViewData["Title"] = "Index";
@@ -10,61 +10,113 @@
     <a asp-action="Create">Create New</a>
 </p>
 
+<form asp-action="Index" method="get">
+    <div class="form-actions no-color">
+        <p>
+            Search: <input type="text" name="search" value="@ViewBag.filter" />
+            <input type="submit" value="Search" class="btn btn-default" /> |
+            <a asp-action="Index">Back to Full List</a>
+        </p>
+    </div>
+</form>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(m => m.MemberRegistrationNumber)
+                @Html.DisplayNameFor(m => m.FirstOrDefault().MemberRegistrationNumber)
             </th>
             <th>
-                @Html.DisplayNameFor(m => m.Name)
+                @Html.DisplayNameFor(m => m.FirstOrDefault().Name)
             </th>
             <th>
-                @Html.DisplayNameFor(m => m.Sector)
+                @Html.DisplayNameFor(m => m.FirstOrDefault().Sector)
             </th>
             <th>
-                @Html.DisplayNameFor(m => m.BirthDate)
+                @Html.DisplayNameFor(m => m.FirstOrDefault().BirthDate)
             </th>
             <th>
-                @Html.DisplayNameFor(m => m.City)
+                @Html.DisplayNameFor(m => m.FirstOrDefault().City)
             </th>
             <th>
-                @Html.DisplayNameFor(m => m.State)
+                @Html.DisplayNameFor(m => m.FirstOrDefault().State)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.MemberRegistrationNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sector)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BirthDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.City)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.State)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MemberRegistrationNumber">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MemberRegistrationNumber">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MemberRegistrationNumber">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MemberRegistrationNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Sector)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BirthDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.City)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.State)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.MemberRegistrationNumber">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.MemberRegistrationNumber">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.MemberRegistrationNumber">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
-@if ((ViewBag.Page ?? 1) > 1)
-{<a href="?page=@(ViewBag.Page - 1)" class="btn btn-primary">Prev</a>}
-<a href="?page=@((ViewBag.Page??1)+1)" class="btn btn-primary">Next</a>
-<a class="nav-link text-dark" asp-area="" asp-controller="Members" asp-action="Import">Importar de um arquivo</a>
+Page @(Model.TotalPages < Model.PageIndex ? 0 : Model.PageIndex) of @Model.TotalPages
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-page="@(Model.PageIndex - 1)"
+   asp-route-search="@ViewBag.filter"
+   class="btn btn-default @prevDisabled">
+    Previous
+</a>
+<a asp-action="Index"
+   asp-route-page="@(Model.PageIndex + 1)"
+   asp-route-search="@ViewBag.filter"
+   class="btn btn-default @nextDisabled">
+    Next
+</a>
+
+<link href="https://unpkg.com/tailwindcss@@^2/dist/tailwind.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+
+<form enctype="multipart/form-data" method="post" asp-controller="Members" asp-action="Import">
+    <div class="py-20 bg-white px-2">
+        <div class="max-w-md mx-auto rounded-lg overflow-hidden md:max-w-xl">
+            <div class="md:flex">
+                <div class="w-full p-3">
+                    <div class="relative border-dotted h-48 rounded-lg border-dashed border-2 border-blue-700 bg-gray-100 flex justify-center items-center">
+                        <div class="absolute">
+                            <div class="flex flex-col items-center"> <i class="fa fa-folder-open fa-4x text-blue-700"></i> <span id="fileName" class="block text-gray-400 font-normal">Attach you files here</span> </div>
+                        </div> <input type="file" class="h-full w-full opacity-0" name="file" id="file">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="submit" class="btn btn-primary" value="Upload" />
+    </div>
+</form>
+
+<script>
+    document.getElementById('file').onchange = (element) => {
+        document.getElementById('fileName').innerText = element.target.files[0].name;
+    }
+</script>
