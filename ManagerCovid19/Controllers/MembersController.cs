@@ -12,8 +12,7 @@ using Microsoft.AspNetCore.Http;
 using System.Data;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
-using Excel = Microsoft.Office.Interop.Excel;
-using System.Data.OleDb;
+using ManagerCovid19;
 
 namespace ManagerCovid19.Controllers
 {
@@ -28,13 +27,13 @@ namespace ManagerCovid19.Controllers
         }
 
         // GET: Members
-        public async Task<IActionResult> Index(int? page)
+        public async Task<IActionResult> Index(string search, int? page)
         {
-            int pageSize = 10;
+            int pageSize = 50;
             ViewBag.Page = page;
 
-            /*ViewBag.sort = String.IsNullOrEmpty(sort) ? "" : sort;
-            ViewBag.order = String.IsNullOrEmpty(order) ? "" : order;
+            ViewBag.filter = search;
+
             var members = from m in _context.Member
                           select m;
 
@@ -42,6 +41,10 @@ namespace ManagerCovid19.Controllers
                                                                          || m.MemberRegistrationNumber.Contains(search)
                                                                          || m.City.Contains(search)
                                                                          || m.State.Contains(search));
+
+            /*ViewBag.sort = String.IsNullOrEmpty(sort) ? "" : sort;
+            ViewBag.order = String.IsNullOrEmpty(order) ? "" : order;
+            
 
             switch (sort)
             {
@@ -70,11 +73,9 @@ namespace ManagerCovid19.Controllers
                     else members = members.OrderBy(s => s.State);
                     break;
             }
+*/
 
-            int pageSize = 10;
-            page ??= 1;*/
-
-            return View(await _context.Member.Skip((page??1-1)*pageSize).Take(pageSize).ToListAsync());
+            return View(PaginatedList<Member>.Create(members, page ?? 1, pageSize));
         }
 
         // GET: Members/Details/5
@@ -204,14 +205,39 @@ namespace ManagerCovid19.Controllers
         }
 
         [HttpPost]
-        public IActionResult Import(IFormFile file)
+        public async Task<IActionResult> Import(IFormFile file)
         {
+            if (file == null) return RedirectToAction(nameof(Index));
             var path = Path.GetTempFileName();
             using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write))
             {
                 file.CopyTo(fileStream);
             }
-            string conn = String.Empty;
+
+            string csvData = System.IO.File.ReadAllText(path);
+
+            foreach (string row in csvData.Split("\r\n"))
+            {
+                if (!string.IsNullOrEmpty(row))
+                {
+                    string[] values = row.Split(",");
+                    Member m = new Member();
+
+                    m.MemberRegistrationNumber = values[0];
+                    m.Name = values[1];
+                    m.Sector = (Member.Sectors) int.Parse(values[2]);
+                    m.Password = values[3];
+                    m.BirthDate = Convert.ToDateTime(values[4]);
+                    m.City = values[5];
+                    m.State= values[6];
+
+                    _context.Add(m);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            /*string conn = String.Empty;
             DataTable xtable = new DataTable();
             if (file.FileName.EndsWith(".xlsx")) conn = @"provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path + ";Extended Properties='Excel 8.0;HRD=Yes;IMEX=1';";
             else conn = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path + ";Extended Properties='Excel 12.0;HDR=NO';";
@@ -225,8 +251,8 @@ namespace ManagerCovid19.Controllers
                     con.Close();
                 //} catch { }
             }
-            ViewData["debug"] = xtable.Rows[0][0];
-            return View("Import");
+            ViewData["debug"] = xtable.Rows[0][0];*/
+            return RedirectToAction(nameof(Index));
         }
 
         private bool MemberExists(string id)
