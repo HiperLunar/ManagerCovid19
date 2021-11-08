@@ -6,26 +6,9 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-<script>
-    const registrations = [
-        @foreach (var item in Model)
-        {
-            @Html.Raw(Json.Serialize(item)+",\n");
-        }
-    ];
-    const mark = (date) => {
-        for (let i = 0; i < registrations.length; i++)
-            if (date.getFullYear() == (new Date(registrations[i].RegisterDateTime)).getFullYear()
-                && date.getMonth() == (new Date(registrations[i].RegisterDateTime)).getMonth()
-                && date.getDate() == (new Date(registrations[i].RegisterDateTime)).getDate())
-                return true;
-        return false;
-    };
-</script>
-
 <partial name="../Shared/Calendar.cshtml" />
 
-<table id="registerList" class="table">
+<table id="registerList" class="table" style="margin-top: 100px;">
     <thead>
         <tr>
             <th>
@@ -79,39 +62,61 @@
 </table>
 
 <script>
+    calendar.loadData = function (month) {
+        var result = $.ajax({
+            async: false,
+            type: 'GET',
+            url: location.origin + '/Health/GetRegisters?month='+(month+1)
+        }).responseJSON;
+        this.data = result;
+        return result;
+    }
+
+    calendar.mark = function (date) {
+        var result = false;
+        this.data.forEach((element) => {
+            result ||= (date.getFullYear() == new Date(element.registerDateTime).getFullYear()
+                && date.getMonth() == new Date(element.registerDateTime).getMonth()
+                && date.getDate() == new Date(element.registerDateTime).getDate())
+        });
+        return result;
+    }
+
     const renderTable = () => {
         const table = $('#registerList tbody');
         table.empty();
-        for (let i = 0; i < registrations.length; i++) {
-            var d = new Date(registrations[i].registerDateTime);
-            if (selectedDate)
-                if (d.getDate() == selectedDate.getDate()
-                    && d.getMonth() == selectedDate.getMonth()
-                    && d.getFullYear() == selectedDate.getFullYear())
+
+        calendar.data.forEach((element) => {
+            var d = new Date(element.registerDateTime);
+            if (calendar.selectedDate)
+                if (d.getDate() == calendar.selectedDate.getDate()
+                    && d.getMonth() == calendar.selectedDate.getMonth()
+                    && d.getFullYear() == calendar.selectedDate.getFullYear())
                 {
                     var row = $('<tr>');
                     console.log(row);
-                    row.append($('<td>').html(d.toLocaleString()));
-                    row.append($('<td>').html(registrations[i].howRUFeeling? 'Sim' : 'Não'));
-                    row.append($('<td>').html(registrations[i].faltaDeAr ? 'Sim' : 'Não'));
-                    row.append($('<td>').html(registrations[i].cansaco ? 'Sim' : 'Não'));
-                    row.append($('<td>').html(registrations[i].febre ? 'Sim' : 'Não'));
-                    row.append($('<td>').html(registrations[i].calafrios ? 'Sim' : 'Não'));
-                    row.append($('<td>').html(registrations[i].tosse ? 'Sim' : 'Não'));
-                    row.append($('<td>').html(registrations[i].dorDeGarganta ? 'Sim' : 'Não'));
-                    row.append($('<td>').html(registrations[i].dorDeCabeca ? 'Sim' : 'Não'));
-                    row.append($('<td>').html(registrations[i].dorNoPeito ? 'Sim' : 'Não'));
-                    row.append($('<td>').html(registrations[i].perdaDeOlfato ? 'Sim' : 'Não'));
-                    row.append($('<td>').html(registrations[i].perdaPaladar ? 'Sim' : 'Não'));
-                    row.append($('<td>').html(registrations[i].diarreia ? 'Sim' : 'Não'));
-                    row.append($('<td>').html(registrations[i].coriza ? 'Sim' : 'Não'));
-                    row.append($('<td>').html(registrations[i].espirros ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(`${d.getDate()}/${d.getMonth()}/${d.getFullYear()}`));
+                    row.append($('<td>').html(element.howRUFeeling ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(element.faltaDeAr ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(element.cansaco ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(element.febre ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(element.calafrios ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(element.tosse ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(element.dorDeGarganta ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(element.dorDeCabeca ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(element.dorNoPeito ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(element.perdaDeOlfato ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(element.perdaPaladar ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(element.diarreia ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(element.coriza ? 'Sim' : 'Não'));
+                    row.append($('<td>').html(element.espirros ? 'Sim' : 'Não'));
                     table.append(row);
                 }
-        }
+        });
     }
 
     $('.days').click('div', element => {
         renderTable();
     });
+
 </script>
