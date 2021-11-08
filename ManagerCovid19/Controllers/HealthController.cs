@@ -29,6 +29,15 @@ namespace ManagerCovid19.Controllers
             return View(await managerCovid19Context.Where(model => model.MemberRegistrationNumber == RN).ToArrayAsync());
         }
 
+        public async Task<IActionResult> GetRegisters(int month)
+        {
+            var RN = User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+            var health = await _context.HealthRegistration
+                .Where(h => h.RegisterDateTime.Date.Month == month && h.MemberRegistrationNumber == RN)
+                .ToListAsync();
+            return Json(health);
+        }
+
         // GET: Health/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -48,6 +57,7 @@ namespace ManagerCovid19.Controllers
             return View(healthRegistration);
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Overview(DateTime fromDate, DateTime toDate)
         {
             return View();
@@ -109,6 +119,7 @@ namespace ManagerCovid19.Controllers
                     Professor = m.Sum(n => n.Member.Sector == Member.Sectors.Professor ? 1 : 0),
                 }).ToList()
             };
+
             return Json(response);
         }
 
@@ -131,6 +142,23 @@ namespace ManagerCovid19.Controllers
             healthRegistration.RegisterDateTime = DateTime.Now;
             healthRegistration.MemberRegistrationNumber = User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier)
                 .Select(c => c.Value).SingleOrDefault();
+            if (healthRegistration.HowRUFeeling)
+            {
+                healthRegistration.FaltaDeAr = false;
+                healthRegistration.Cansaco = false;
+                healthRegistration.Calafrios= false;
+                healthRegistration.Coriza = false;
+                healthRegistration.Diarreia= false;
+                healthRegistration.DorDeCabeca = false;
+                healthRegistration.DorDeGarganta = false;
+                healthRegistration.DorNoPeito = false;
+                healthRegistration.Espirros = false;
+                healthRegistration.FaltaDeAr = false;
+                healthRegistration.Febre = false;
+                healthRegistration.PerdaDeOlfato = false;
+                healthRegistration.PerdaPaladar = false;
+                healthRegistration.Tosse = false;
+            }
             if (ModelState.IsValid)
             {
                 _context.Add(healthRegistration);
