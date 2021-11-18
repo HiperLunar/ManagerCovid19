@@ -1,31 +1,57 @@
-﻿
+﻿@model ManagerCovid19.Models.Member
+
 @{
     ViewData["Title"] = "Overview";
 }
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.min.js"></script>
+
 
 <script>
 
 </script>
 
-<h1>Overview</h1>
+<div id="overview">
+    <h1>Overview</h1>
 
-Visão geral de
-<input type="date" name="from" /> até
-<input type="date" name="to" />
-<button id="refresh">Refresh</button>
-<div id="charts"></div>
-<div id="registerByDateChart_div"></div>
-<div id="notWellByDateChart_div"></div>
-<div id="registerBySectorByDateChart_div"></div>
-<div id="registerBySectorByDateNotWellChart_div"></div>
-<span>Quantidade de registros "Não estou me sentindo bem" nos últimos 5 dias: <div id="lastDays"></div></span>
-<span>Quantidade de registros "Não estou me sentindo bem" nos últimos 5 dias no setor "Administrador": <div id="lastDays0"></div></span>
-<span>Quantidade de registros "Não estou me sentindo bem" nos últimos 5 dias no setor "Aluno": <div id="lastDays1"></div></span>
-<span>Quantidade de registros "Não estou me sentindo bem" nos últimos 5 dias no setor "Professor": <div id="lastDays2"></div></span>
-<span>Quantidade de registros "Não estou me sentindo bem" nos últimos 5 dias no setor "Funcionário": <div id="lastDays3"></div></span>
+    <div class="container">
+        Visão geral de
+        <input type="date" name="from" /> até
+        <input type="date" name="to" />
+        Mínimo de registros semanais
+        <input type="number" name="minimum" value="5" />
+        <button id="refresh">Refresh</button>
+        <div id="loader" class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+
+        <div id="charts"></div>
+
+        <div id="lastDays"></div>
+
+        <div id="memberList">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>@Html.DisplayNameFor(m => m.MemberRegistrationNumber)</th>
+                        <th>@Html.DisplayNameFor(model => model.Name)</th>
+                        <th>@Html.DisplayNameFor(model => model.Sector)</th>
+                        <th>@Html.DisplayNameFor(model => model.BirthDate)</th>
+                        <th>@Html.DisplayNameFor(model => model.City)</th>
+                        <th>@Html.DisplayNameFor(model => model.State)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="members">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<button class="btn btn-secondary" id="printPDF">Print</button>
 
 <script>
 
@@ -41,62 +67,88 @@ Visão geral de
     google.charts.load('current', { packages: ['corechart', 'bar'] });
     google.charts.setOnLoadCallback(drawChart);
 
-    function drawChart() {
-        console.log('refresh');
-        $.post(location.origin + '/Health/Filter', { 'fromDate': $('input[name=from]')[0].value || new Date(new Date().setDate(1)).toLocaleDateString(), 'toDate': $('input[name=to]')[0].value || new Date().toLocaleDateString() }, (dataRaw) => {
+    async function drawChart() {
+        $('#charts').empty();
+        $('#lastDays').empty();
+        $('#members').empty();
+
+        $('#loader').show();
+        await $.post(location.origin + '/Health/Filter', { 'fromDate': $('input[name=from]')[0].value || new Date(new Date().setDate(1)).toLocaleDateString(), 'toDate': $('input[name=to]')[0].value || new Date().toLocaleDateString(), 'minimum': $('input[name=minimum]').val() }, (dataRaw) => {
             console.log(dataRaw);
-            var registerByDate = new google.visualization.DataTable();
-            registerByDate.addColumn('date', 'Dias');
-            registerByDate.addColumn('number', 'Quantidade de registros');
-            for (let i = 0; i < dataRaw.registerByDate.length; i++) registerByDate.addRows([[new Date(dataRaw.registerByDate[i].date), dataRaw.registerByDate[i].count]]);
 
-            var notWellByDate = new google.visualization.DataTable();
-            notWellByDate.addColumn('date', 'Dias');
-            notWellByDate.addColumn('number', "Quantidade de registros 'Não estou me sentindo bem'");
-            for (let i = 0; i < dataRaw.notWellByDate.length; i++) notWellByDate.addRows([[new Date(dataRaw.notWellByDate[i].date), dataRaw.notWellByDate[i].count]]);
+            dataRaw.charts.forEach((element) => {
+                var chartDiv = $('<div>');
+                chartDiv.appendTo('#charts');
 
-            var registerBySectorByDate = new google.visualization.DataTable();
-            var registerBySectorByDateNotWell = new google.visualization.DataTable();
-            registerBySectorByDate.addColumn('date', 'Dias');
-            registerBySectorByDate.addColumn('number', 'Administrador');
-            registerBySectorByDate.addColumn('number', 'Aluno');
-            registerBySectorByDate.addColumn('number', 'Funcionário');
-            registerBySectorByDate.addColumn('number', 'Professor');
-            registerBySectorByDateNotWell.addColumn('date', 'Dias');
-            registerBySectorByDateNotWell.addColumn('number', 'Administrador');
-            registerBySectorByDateNotWell.addColumn('number', 'Aluno');
-            registerBySectorByDateNotWell.addColumn('number', 'Funcionário');
-            registerBySectorByDateNotWell.addColumn('number', 'Professor');
-            dataRaw.registerBySectorByDate.forEach((element) => registerBySectorByDate.addRows([[new Date(element.key), element.administrador, element.aluno, element.professor, element.funcionario]]));
-            dataRaw.registerBySectorByDate.forEach((element) => registerBySectorByDateNotWell.addRows([[new Date(element.key), element.administradorNotWell, element.alunoNotWell, element.professorNotWell, element.funcionarioNotWell]]));
+                var data = new google.visualization.DataTable();
+                element.columns.forEach((col, i) => {
+                    data.addColumn(col.type, col.name);
+                    if (col.type == 'date')
+                        element.data.forEach((row) => { row[i] = new Date(row[i]) });
+                });
 
-            console.log(dataRaw.registerBySectorByDate)
+                data.addRows(element.data);
 
-            var registerByDateChart = new google.visualization.ColumnChart(document.getElementById('registerByDateChart_div'));
-            registerByDateChart.draw(registerByDate, {
-                title: 'Quantidade diária de relatórios',
-                isStacked: true
+                var chart = new google.visualization.ColumnChart(chartDiv[0]);
+                chart.draw(data, element.options);
             });
-            var notWellByDateChart = new google.visualization.ColumnChart(document.getElementById('notWellByDateChart_div'));
-            notWellByDateChart.draw(notWellByDate, {
-                title: 'Quantidade diária de registros de saúde "Não muito bem"',
-                isStacked: true
+
+            $('<span>')
+                .append($('<p>')
+                    .addClass('font-weight-bold')
+                    .text('Registros "Não estou me sentindo bem" nos últimos 5 dias: ')
+                ).append(dataRaw.lastDays[0] == undefined ? 0 : dataRaw.lastDays[0].count).appendTo('#lastDays')
+            $('<span>')
+                .append($('<p>')
+                    .addClass('font-weight-bold')
+                    .text('Registros "Não estou me sentindo bem" nos últimos 5 dias no setor "Administrador": ')
+                ).append(dataRaw.lastDays[0] == undefined ? 0 : dataRaw.lastDays[0].administrador).appendTo('#lastDays')
+            $('<span>')
+                .append($('<p>')
+                    .addClass('font-weight-bold')
+                    .text('Registros "Não estou me sentindo bem" nos últimos 5 dias no setor "Aluno": ')
+                ).append(dataRaw.lastDays[0] == undefined ? 0 : dataRaw.lastDays[0].aluno).appendTo('#lastDays')
+            $('<span>')
+                .append($('<p>')
+                    .addClass('font-weight-bold')
+                    .text('Registros "Não estou me sentindo bem" nos últimos 5 dias no setor "Funcionário": ')
+                ).append(dataRaw.lastDays[0] == undefined ? 0 : dataRaw.lastDays[0].funcionario).appendTo('#lastDays')
+            $('<span>')
+                .append($('<p>')
+                    .addClass('font-weight-bold')
+                    .text('Registros "Não estou me sentindo bem" nos últimos 5 dias no setor "Professor": ')
+                ).append(dataRaw.lastDays[0] == undefined ? 0 : dataRaw.lastDays[0].professor).appendTo('#lastDays')
+
+            dataRaw.membersMinimum.forEach((member) => {
+                var row = $('<tr>');
+                row.append($('<td>').text(member.memberRegistrationNumber));
+                row.append($('<td>').text(member.name));
+                row.append($('<td>').text(member.sector));
+                row.append($('<td>').text(new Date(member.birthDate).toLocaleDateString()));
+                row.append($('<td>').text(member.city));
+                row.append($('<td>').text(member.state));
+                row.append($('<td>').append($('<a>').text('Details').attr('href', '/Members/Details/' + member.memberRegistrationNumber)));
+                row.appendTo('#members');
             });
-            var registerBySectorByDateChart = new google.visualization.ColumnChart(document.getElementById('registerBySectorByDateChart_div'));
-            registerBySectorByDateChart.draw(registerBySectorByDate, {
-                title: 'Quantidade diária de registros de saúde por setor'
-            });
-            var registerBySectorByDateNotWellChart = new google.visualization.ColumnChart(document.getElementById('registerBySectorByDateNotWellChart_div'));
-            registerBySectorByDateNotWellChart.draw(registerBySectorByDateNotWell, {
-                title: 'Quantidade diária de registros de saúde "Não muito bem" por setor'
-            });
-            document.getElementById('lastDays').innerText = dataRaw.lastDays[0].count;
-            document.getElementById('lastDays0').innerText = dataRaw.lastDays[0].administrador;
-            document.getElementById('lastDays1').innerText = dataRaw.lastDays[0].aluno;
-            document.getElementById('lastDays2').innerText = dataRaw.lastDays[0].professor;
-            document.getElementById('lastDays3').innerText = dataRaw.lastDays[0].funcionario;
         });
+
+        $('#loader').hide();
     }
 
-    $('#refresh').click(() => { drawChart(); })
+    function printPDF() {
+        var source = $('#overview').html()
+        console.log(source)
+        var pdf = window.open('', '', 'height=800,width=600')
+        pdf.document.write('<html><head>')
+        pdf.document.write('<link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css" /><link rel="stylesheet" href="/css/site.css" />')
+        pdf.document.write('</head><body>')
+        pdf.document.write(source)
+        pdf.document.write('</body></html>')
+        pdf.document.close()
+        pdf.print()
+    }
+
+    $('#printPDF').click(printPDF)
+
+    $('#refresh').click(drawChart)
 </script>

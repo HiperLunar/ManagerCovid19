@@ -64,52 +64,16 @@ namespace ManagerCovid19.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Filter(DateTime fromDate, DateTime toDate)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Filter(DateTime fromDate, DateTime toDate, int? minimum)
         {
             var response = new
             {
-                registerByDate = await _context.HealthRegistration
-                .Where(m => DateTime.Compare(m.RegisterDateTime, fromDate) >= 0 && DateTime.Compare(m.RegisterDateTime, toDate) <= 0)
-                .GroupBy(m => m.RegisterDateTime.Date)
-                .Select(m => new
-                {
-                    Date = m.Key,
-                    Count = m.Count()
-                })
-                .ToListAsync(),
-
-                notWellByDate = await _context.HealthRegistration
-                .Where(m => DateTime.Compare(m.RegisterDateTime, fromDate) >= 0 && DateTime.Compare(m.RegisterDateTime, toDate) <= 0 && !m.HowRUFeeling)
-                .GroupBy(m => m.RegisterDateTime.Date)
-                .Select(m => new
-                {
-                    Date = m.Key,
-                    Count = m.Count()
-                })
-                .ToListAsync(),
-
-                registerBySectorByDate = _context.HealthRegistration
-                .Include(m => m.Member)
-                .Where(m => DateTime.Compare(m.RegisterDateTime, fromDate) >= 0 && DateTime.Compare(m.RegisterDateTime, toDate) <= 0)
-                .AsEnumerable()
-                .GroupBy(m => m.RegisterDateTime.Date)
-                .Select(m => new
-                {
-                    Key = m.Key,
-                    Administrador = m.Sum(n => n.Member.Sector == Member.Sectors.Administrador ? 1 : 0),
-                    AdministradorNotWell = m.Sum(n => n.Member.Sector == Member.Sectors.Administrador && !n.HowRUFeeling ? 1 : 0),
-                    Aluno = m.Sum(n => n.Member.Sector == Member.Sectors.Aluno ? 1 : 0),
-                    AlunoNotWell = m.Sum(n => n.Member.Sector == Member.Sectors.Aluno && !n.HowRUFeeling ? 1 : 0),
-                    Funcionario = m.Sum(n => n.Member.Sector == Member.Sectors.Funcionario ? 1 : 0),
-                    FuncionarioNotWell = m.Sum(n => n.Member.Sector == Member.Sectors.Funcionario && !n.HowRUFeeling ? 1 : 0),
-                    Professor = m.Sum(n => n.Member.Sector == Member.Sectors.Professor ? 1 : 0),
-                    ProfessorNotWell = m.Sum(n => n.Member.Sector == Member.Sectors.Professor && !n.HowRUFeeling ? 1 : 0)
-                }),
                 lastDays = _context.HealthRegistration
                 .Include(m => m.Member)
                 .Where(m => DateTime.Compare(m.RegisterDateTime, DateTime.Today.AddDays(-5)) > 0 && DateTime.Compare(m.RegisterDateTime, DateTime.Today) < 0 && !m.HowRUFeeling)
                 .AsEnumerable()
-                .GroupBy(m => m.RegisterDateTime.Date)
+                .GroupBy(m => m.HealthRegistrationID)
                 .Select(m => new
                 {
                     Count = m.Count(),
@@ -117,7 +81,112 @@ namespace ManagerCovid19.Controllers
                     Aluno = m.Sum(n => n.Member.Sector == Member.Sectors.Aluno ? 1 : 0),
                     Funcionario = m.Sum(n => n.Member.Sector == Member.Sectors.Funcionario ? 1 : 0),
                     Professor = m.Sum(n => n.Member.Sector == Member.Sectors.Professor ? 1 : 0),
-                }).ToList()
+                }),
+
+                membersMinimum = _context.Member
+                .Where(m => m.HealthRegistrations
+                    .Where(h => DateTime.Compare(h.RegisterDateTime, fromDate) >= 0 && DateTime.Compare(h.RegisterDateTime, toDate) <= 0)
+                    .Count() >= minimum)
+                .ToList(),
+                
+                /*_context.HealthRegistration
+                .Include(m => m.Member)
+                .Where(m => DateTime.Compare(m.RegisterDateTime, fromDate) >= 0 && DateTime.Compare(m.RegisterDateTime, toDate) <= 0)
+                .AsEnumerable()
+                .GroupBy(m => m.MemberRegistrationNumber)
+                .Where(m => m.Count() >= minimum)
+                .Select(m => m.Key),*/
+
+                charts = new List<object>
+                {
+                    new {
+                        columns = new List<object> {
+                            new { type = "date", name = "Datas" },
+                            new { type = "number", name = "Quantidade" }
+                        },
+                        data = await _context.HealthRegistration
+                            .Where(m => DateTime.Compare(m.RegisterDateTime, fromDate) >= 0 && DateTime.Compare(m.RegisterDateTime, toDate) <= 0)
+                            .GroupBy(m => m.RegisterDateTime.Date)
+                            .Select(m => new List<object>{ m.Key, m.Count() })
+                            .ToListAsync(),
+                        options = new {
+                            title = "Quantidade diária de relatórios"
+                        }
+                    },
+                    new
+                    {
+                        columns = new List<object>
+                        {
+                            new { type = "date", name = "Datas"  },
+                            new { type = "number", name = "Quantidade de registros \"Não estou me sentindo bem\""  }
+                        },
+                        data = await _context.HealthRegistration
+                            .Where(m => DateTime.Compare(m.RegisterDateTime, fromDate) >= 0 && DateTime.Compare(m.RegisterDateTime, toDate) <= 0 && !m.HowRUFeeling)
+                            .GroupBy(m => m.RegisterDateTime.Date)
+                            .Select(m => new List<object>{ m.Key, m.Count() })
+                            .ToListAsync(),
+                        options = new
+                        {
+                            title = "Quantidade diária de registros de saúde \"Não muito bem\""
+                        }
+                    },
+                    new
+                    {
+                        columns = new List<object>
+                        {
+                            new { type = "date", name = "Datas"  },
+                            new { type = "number", name = "Administrador"  },
+                            new { type = "number", name = "Aluno"  },
+                            new { type = "number", name = "Funcionário"  },
+                            new { type = "number", name = "Professor"  }
+                        },
+                        data = _context.HealthRegistration
+                            .Include(m => m.Member)
+                            .Where(m => DateTime.Compare(m.RegisterDateTime, fromDate) >= 0 && DateTime.Compare(m.RegisterDateTime, toDate) <= 0)
+                            .AsEnumerable()
+                            .GroupBy(m => m.RegisterDateTime.Date)
+                            .Select(m => new List<object>
+                            {
+                                m.Key,
+                                m.Sum(n => n.Member.Sector == Member.Sectors.Administrador ? 1 : 0),
+                                m.Sum(n => n.Member.Sector == Member.Sectors.Aluno ? 1 : 0),
+                                m.Sum(n => n.Member.Sector == Member.Sectors.Funcionario ? 1 : 0),
+                                m.Sum(n => n.Member.Sector == Member.Sectors.Professor ? 1 : 0)
+                            }),
+                        options = new
+                        {
+                            title = "Quantidade diária de registros de saúde por setor"
+                        }
+                    },
+                    new
+                    {
+                        columns = new List<object>
+                        {
+                            new { type = "date", name = "Datas"  },
+                            new { type = "number", name = "Administrador"  },
+                            new { type = "number", name = "Aluno"  },
+                            new { type = "number", name = "Funcionário"  },
+                            new { type = "number", name = "Professor"  }
+                        },
+                        data = _context.HealthRegistration
+                            .Include(m => m.Member)
+                            .Where(m => DateTime.Compare(m.RegisterDateTime, fromDate) >= 0 && DateTime.Compare(m.RegisterDateTime, toDate) <= 0 && !m.HowRUFeeling)
+                            .AsEnumerable()
+                            .GroupBy(m => m.RegisterDateTime.Date)
+                            .Select(m => new List<object>
+                            {
+                                m.Key,
+                                m.Sum(n => n.Member.Sector == Member.Sectors.Administrador ? 1 : 0),
+                                m.Sum(n => n.Member.Sector == Member.Sectors.Aluno ? 1 : 0),
+                                m.Sum(n => n.Member.Sector == Member.Sectors.Funcionario ? 1 : 0),
+                                m.Sum(n => n.Member.Sector == Member.Sectors.Professor ? 1 : 0)
+                            }),
+                        options = new
+                        {
+                            title = "Quantidade diária de registros de saúde \"Não muito bem\" por setor"
+                        }
+                    }
+                }
             };
 
             return Json(response);
