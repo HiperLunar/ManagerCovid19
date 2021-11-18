@@ -9,6 +9,9 @@ using ManagerCovid19.Data;
 using ManagerCovid19.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
+using System.Diagnostics;
 
 namespace ManagerCovid19.Controllers
 {
@@ -60,6 +63,7 @@ namespace ManagerCovid19.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult Overview(DateTime fromDate, DateTime toDate)
         {
+            if (Utils.fBrowserIsMobile(Request)) return Forbid();
             return View();
         }
 

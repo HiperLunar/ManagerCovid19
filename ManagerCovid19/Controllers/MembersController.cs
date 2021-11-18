@@ -100,6 +100,7 @@ namespace ManagerCovid19.Controllers
         // GET: Members/Create
         public IActionResult Create()
         {
+            if (Utils.fBrowserIsMobile(Request)) return Forbid();
             return View();
         }
 
@@ -110,6 +111,8 @@ namespace ManagerCovid19.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MemberRegistrationNumber,Name,Sector,Password,BirthDate,City,State")] Member member)
         {
+            if (Utils.fBrowserIsMobile(Request)) return Forbid();
+
             if (ModelState.IsValid)
             {
                 _context.Add(member);
@@ -122,6 +125,8 @@ namespace ManagerCovid19.Controllers
         // GET: Members/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
+            if (Utils.fBrowserIsMobile(Request)) return Forbid();
+
             if (id == null)
             {
                 return NotFound();
@@ -142,6 +147,8 @@ namespace ManagerCovid19.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("MemberRegistrationNumber,Name,Sector,Password,BirthDate,City,State")] Member member)
         {
+            if (Utils.fBrowserIsMobile(Request)) return Forbid();
+
             if (id != member.MemberRegistrationNumber)
             {
                 return NotFound();
@@ -173,6 +180,8 @@ namespace ManagerCovid19.Controllers
         // GET: Members/Delete/5
         public async Task<IActionResult> Delete(string id)
         {
+            if (Utils.fBrowserIsMobile(Request)) return Forbid();
+
             if (id == null)
             {
                 return NotFound();
@@ -193,6 +202,8 @@ namespace ManagerCovid19.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
+            if (Utils.fBrowserIsMobile(Request)) return Forbid();
+
             var member = await _context.Member.FindAsync(id);
             _context.Member.Remove(member);
             await _context.SaveChangesAsync();
@@ -201,12 +212,16 @@ namespace ManagerCovid19.Controllers
 
         public IActionResult Import()
         {
+            if (Utils.fBrowserIsMobile(Request)) return Forbid();
+
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Import(IFormFile file)
         {
+            if (Utils.fBrowserIsMobile(Request)) return Forbid();
+
             if (file == null) return RedirectToAction(nameof(Index));
             var path = Path.GetTempFileName();
             using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write))

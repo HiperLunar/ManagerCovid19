@@ -52,6 +52,7 @@
 </div>
 
 <button class="btn btn-secondary" id="printPDF">Print</button>
+<a class="btn btn-secondary" href="#" download="members.csv" role="button" id="exportCSV">Export</a>
 
 <script>
 
@@ -63,6 +64,19 @@
         $('input[name=from]')[0].value = `${from.getFullYear()}-${("0" + (from.getMonth() + 1)).slice(-2)}-${("0" + from.getDate()).slice(-2)}`;
         $('input[name=to]')[0].value = `${to.getFullYear()}-${("0" + (to.getMonth() + 1)).slice(-2)}-${("0" + to.getDate()).slice(-2)}`;
     });
+
+    function exportCSV() {
+        var line_split = '\n'
+        var col_split = ';'
+        var columns = ['', 'MemberRegistrationNumber', 'Name', 'Sector', 'BirthDate', 'City', 'State']
+        var data = [columns].concat($('#members tr').toArray().map((row, rowIndex) => {
+            return [rowIndex].concat($(row).children().toArray().map((value) => {
+                return value.innerText
+            }))
+        }));
+        var csv = data.map(row => row.join(col_split)).join(line_split) + line_split;
+        return csv
+    }
 
     google.charts.load('current', { packages: ['corechart', 'bar'] });
     google.charts.setOnLoadCallback(drawChart);
@@ -130,13 +144,15 @@
                 row.append($('<td>').append($('<a>').text('Details').attr('href', '/Members/Details/' + member.memberRegistrationNumber)));
                 row.appendTo('#members');
             });
+
+            $('#exportCSV').attr('href', window.URL.createObjectURL(new Blob([exportCSV()], {type: 'text/csv'})));
         });
 
         $('#loader').hide();
     }
 
     function printPDF() {
-        var source = $('#overview').html()
+        var source = $('#memberList').html()
         console.log(source)
         var pdf = window.open('', '', 'height=800,width=600')
         pdf.document.write('<html><head>')
@@ -149,6 +165,7 @@
     }
 
     $('#printPDF').click(printPDF)
+    $('#exportCSV').click(exportCSV)
 
     $('#refresh').click(drawChart)
 </script>
