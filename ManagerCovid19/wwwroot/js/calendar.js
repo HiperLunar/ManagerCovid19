@@ -95,7 +95,6 @@ $('.days').click('div', element => {
             element.target.innerText
         );
 
-    console.log(calendar.selectedDate);
     calendar.renderCalendar();
 });
 
