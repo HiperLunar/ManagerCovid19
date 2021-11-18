@@ -59,25 +59,103 @@
                         <th>
                             @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().HowRUFeeling)
                         </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().FaltaDeAr)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().Cansaco)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().Febre)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().Calafrios)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().Tosse)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().DorDeGarganta)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().DorDeCabeca)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().DorNoPeito)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().PerdaDeOlfato)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().PerdaPaladar)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().Diarreia)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().Coriza)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.HealthRegistrations.FirstOrDefault().Espirros)
+                        </th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model.HealthRegistrations)
                     {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.RegisterDateTime)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.HowRUFeeling)
-                            </td>
-                            <td>
-                                <a asp-controller="Health" asp-action="Edit" asp-route-id="@item.HealthRegistrationID">Edit</a> |
-                                <a asp-controller="Health" asp-action="Details" asp-route-id="@item.HealthRegistrationID">Details</a> |
-                                <a asp-controller="Health" asp-action="Delete" asp-route-id="@item.HealthRegistrationID">Delete</a>
-                            </td>
-                        </tr>
+                    <tr>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.RegisterDateTime)
+                        </th>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.HowRUFeeling)
+                        </th>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.FaltaDeAr)
+                        </th>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.Cansaco)
+                        </th>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.Febre)
+                        </th>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.Calafrios)
+                        </th>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.Tosse)
+                        </th>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.DorDeGarganta)
+                        </th>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.DorDeCabeca)
+                        </th>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.DorNoPeito)
+                        </th>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.PerdaDeOlfato)
+                        </th>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.PerdaPaladar)
+                        </th>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.Diarreia)
+                        </th>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.Coriza)
+                        </th>
+                        <th>
+                            @Html.DisplayFor(modelItem => item.Espirros)
+                        </th>
+                        <td>
+                            <a asp-controller="Health" asp-action="Edit" asp-route-id="@item.HealthRegistrationID">Edit</a> |
+                            <a asp-controller="Health" asp-action="Details" asp-route-id="@item.HealthRegistrationID">Details</a> |
+                            <a asp-controller="Health" asp-action="Delete" asp-route-id="@item.HealthRegistrationID">Delete</a>
+                        </td>
+                    </tr>
                     }
                 </tbody>
             </table>
